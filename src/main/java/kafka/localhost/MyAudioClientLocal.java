@@ -48,7 +48,7 @@ public class MyAudioClientLocal implements Runnable {
         this.i = i;
 
         try {
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"192.168.75.128:6667");
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"192.168.41.131:6667");
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"latest");
             //props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,true);
             props.put(ConsumerConfig.CLIENT_ID_CONFIG,generateString());

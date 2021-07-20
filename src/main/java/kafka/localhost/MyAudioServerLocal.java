@@ -38,7 +38,7 @@ public class MyAudioServerLocal extends Thread {
 
     public MyAudioServerLocal() {
 
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"192.168.75.128:6667");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"192.168.41.131:6667");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DataJsonSerializer.class.getName());
 
