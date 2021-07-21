@@ -1,6 +1,9 @@
 package testCam;
 
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Properties;
 
 import javax.sound.sampled.*;
@@ -9,9 +12,10 @@ import javax.swing.*;
 
 import com.sun.media.sound.WaveFileReader;
 import org.bytedeco.javacv.*;
+import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameRecorder.Exception;
 
-public class CameraTestJavaCV extends JFrame{
+public class CameraTestJavaCV extends JFrame {
     final private static int WEBCAM_DEVICE_INDEX = 0;
     final private static int AUDIO_DEVICE_INDEX = 4;
 
@@ -92,14 +96,54 @@ public class CameraTestJavaCV extends JFrame{
 
              while (true){
                  try {
+
+
+
+
                      System.out.println(grabber.grabFrame());
                      jframe.image.setIcon(new ImageIcon(new Java2DFrameConverter().getBufferedImage(grabber.grabFrame())));
                  } catch (FrameGrabber.Exception e) {
+                     e.printStackTrace();
+                 } catch (IOException e) {
                      e.printStackTrace();
                  }
              }
          }
      }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                CameraTestJavaCV jframe = new CameraTestJavaCV();
+                jframe.setContentPane(jframe.panel);
+                jframe.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                jframe.panel.setPreferredSize(new Dimension(1280, 720));
+                jframe.pack();
+                jframe.setLocationRelativeTo(null);
+                jframe.setVisible(true);
+
+                final int captureWidth = 1280;
+                final int captureHeight = 720;
+                //play web cam
+                final OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(WEBCAM_DEVICE_INDEX);
+                grabber.setImageWidth(captureWidth);
+                grabber.setImageHeight(captureHeight);
+                try {
+                    grabber.start();
+                } catch (FrameGrabber.Exception e) {
+                    e.printStackTrace();
+                }
+
+                while (true){
+                    try {
+                        System.out.println(grabber.grabFrame());
+                        jframe.image.setIcon(new ImageIcon(new Java2DFrameConverter().getBufferedImage(grabber.grabFrame())));
+                    } catch (FrameGrabber.Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
 
 
     }

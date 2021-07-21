@@ -2,8 +2,6 @@ package kafka.localhost;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.media.sound.WaveFileReader;
-
-
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
@@ -16,7 +14,7 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.UUID;
 
-public class MyAudioClientLocal implements Runnable {
+public class MyCamClientLocal implements Runnable {
     private static Integer idClient;
     // Audio format to play
     private AudioFormat format = null;
@@ -29,14 +27,7 @@ public class MyAudioClientLocal implements Runnable {
     DataLine.Info dataLineInfo;
     Integer i = 0;
 
-//    PriorityBlockingQueue<DataModel> queue = new PriorityBlockingQueue<>(20, new Comparator<DataModel>() {
-//        @Override
-//        public int compare(DataModel o1, DataModel o2) {
-//            if (o1.position > o2.position) return 1;
-//            else if (o1.position < o2.position) return -1;
-//            else return 0;
-//        }
-//    });
+
 
    MyCustomArray arrayTest = new MyCustomArray();
 
@@ -44,7 +35,7 @@ public class MyAudioClientLocal implements Runnable {
     public static String generateString() {
         return "uuid" + UUID.randomUUID().toString();
     }
-    public MyAudioClientLocal(Integer i) {
+    public MyCamClientLocal(Integer i) {
         this.i = i;
 
         try {
@@ -71,43 +62,18 @@ public class MyAudioClientLocal implements Runnable {
     public void run() {
         try {
             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
-            consumer.subscribe(Collections.singleton("test-events"));
-
+            consumer.subscribe(Collections.singleton("video-channel"));
+            ObjectMapper objectMapper = new ObjectMapper();
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(0);
+                ConsumerRecords<String, String> records = consumer.poll(5);
                 for (ConsumerRecord<String, String> record : records) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    DataModel dataModel = objectMapper.readValue(record.value(), DataModel.class);
-                    arrayTest.add(dataModel);
+                    System.out.println(record.value());
+//                    MyCustomeFrame myCustomeFrame = objectMapper.readValue(record.value(), MyCustomeFrame.class);
+//                    System.out.println(myCustomeFrame.imageHeight);
                 }
-                DataModel dataModel1 = arrayTest.take();
 
-                if (dataModel1 != null) {
-                    if (format == null) {
-                        System.out.println("Create New Format Audio");
-                        format = new AudioFormat(dataModel1.getSampleRate(), dataModel1.getSampleSizeInBits(), dataModel1.getChannel(), dataModel1.signed, dataModel1.bigEndian);
-                        // Set up speaker
-                        dataLineInfo = new DataLine.Info(SourceDataLine.class, format);
-                        speaker = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
-                        speaker.open(format);
-                        speaker.start();
 
-                    }
 
-                    if (dataModel1.getType() == 0) {
-                        System.out.println("speak pkg data: " + dataModel1.getPosition());
-                        speaker.write(dataModel1.getBytes(), 0, dataModel1.getNumBytesRead());
-                    } else if (dataModel1.getType() == 1) {
-                        speaker.close();
-                        System.out.println("Reset New Format Audio");
-                        format = new AudioFormat(dataModel1.getSampleRate(), dataModel1.getSampleSizeInBits(), dataModel1.getChannel(), dataModel1.signed, dataModel1.bigEndian);
-                        // Set up speaker
-                        dataLineInfo = new DataLine.Info(SourceDataLine.class, format);
-                        speaker = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
-                        speaker.open(format);
-                        speaker.start();
-                    }
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,7 +85,7 @@ public class MyAudioClientLocal implements Runnable {
 
         for (int i = 0; i < 1; i++) {
             final int finalI = i;
-            new Thread(new MyAudioClientLocal(finalI), finalI + "").start();
+            new Thread(new MyCamClientLocal(finalI), finalI + "").start();
         }
     }
 }
